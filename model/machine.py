@@ -28,10 +28,7 @@ class Machine:
         # Our machine will read from this queue
         # We have a separate thread (not rate limited) that reads from the socket and writes to this queue
         self.network_queue = Queue()
-
-        # Start network listening thread
-        self.network_thread = threading.Thread(target=self.listen_to_network)
-        self.network_thread.start()
+        self.network_thread = None
 
     def log_event(self, event, extra_text=""):
         """
@@ -45,6 +42,14 @@ class Machine:
             internal_time = datetime.fromtimestamp(self.internal_clock, UTC).time()
             f.write(f'[{event}]: {system_time} {internal_time} {extra_text}\n')
 
+    def start_network_thread(self):
+        """
+        Start network listening thread
+        """
+        self.network_thread = threading.Thread(target=self.listen_to_network)
+        self.network_thread.daemon = True
+        self.network_thread.start()
+
     def listen_to_network(self):
         """
         Listen to the network for messages.
@@ -53,7 +58,11 @@ class Machine:
         buffer = ''
         while True:
             # Receive a message from the network.
-            buffer += self.socket.recv(1024).decode('utf-8')
+            try:
+                buffer += self.socket.recv(1024).decode('utf-8')
+            except Exception as e:
+                print(f"[{self.id}] Error received from socket: {e}")
+                break
 
             # Split messages by newline
             next_newline = buffer.find('\n')
