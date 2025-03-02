@@ -50,13 +50,25 @@ class Machine:
         Listen to the network for messages.
         Any incoming messages will be added to the network queue.
         """
+        buffer = ''
         while True:
             # Receive a message from the network.
-            message = self.socket.recv(1024)
-            self.log_event(f'Received message {message}')
+            buffer += self.socket.recv(1024).decode('utf-8')
 
-            # Add the message to the network queue.
-            self.network_queue.put(message)
+            # Split messages by newline
+            next_newline = buffer.find('\n')
+            while next_newline != -1:
+                message_json = buffer[:next_newline]
+                buffer = buffer[next_newline + 1:]
+
+                # Parse the message
+                message = Message.from_json(json.loads(message_json))
+
+                # Add the message to the network queue.
+                self.network_queue.put(message)
+
+                # Find next message
+                next_newline = buffer.find('\n')
 
     def run(self):
         """
@@ -66,8 +78,10 @@ class Machine:
             # See if there is a pending message
             if self.network_queue.empty():
                 rng = random.randint(1, 10)
+
+                # Create message to be sent
                 message = Message(self.id, self.internal_clock)
-                message_json = json.dumps(message.to_json()).encode('utf-8')
+                message_json = json.dumps(message.to_json()).encode('utf-8') + b'\n'
                 if rng == 1:
                     # Send to neighbor 1
                     self.neighbors[0].send(message_json)
