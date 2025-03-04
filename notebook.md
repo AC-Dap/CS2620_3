@@ -10,6 +10,18 @@
 
 ### 3/3/2025
 
+- Create a set of experiments with different parameters to test the Lamport logical clock implementation:
+  - Experiment 1: High clock variation (speeds 1-6), high internal event probability
+  - Experiment 2: Low clock variation (speeds 4-6), high internal event probability
+  - Experiment 3: High clock variation, low internal event probability
+  - Experiment 4: Low clock variation, low internal event probability
+
+- Each experiment runs for 60 seconds (with experiment one also run an extra time for 120 seconds) and involves 3 machines communicating via sockets
+- Machines operate at different speeds based on the clock variation parameter
+- Internal event probability affects how often machines perform internal events vs. sending messages
+
+- The visualizations show logical clock progression, event type distribution, message queue sizes, and clock drift analysis for each experiment, helping us understand how different parameters affect system behavior.
+
 - Added code to run experiments and visualize their results. Initial results show that the clock behavior is very balanced, despite different clock speeds. The distribution of events are slightly different, but nothing too concerning.
 
 ### 3/1/2025
