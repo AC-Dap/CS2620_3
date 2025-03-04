@@ -33,7 +33,7 @@ class TestMachine(unittest.TestCase):
 
             # Set up mock socket
             sock.recv.side_effect = test_messages
-            machine.start_network_thread()
+            machine.start_network_threads()
 
             self.assertEqual(machine.network_queue.get(block=False), Message('sender', 123))
             self.assertEqual(machine.network_queue.get(block=False), Message('sender2', 456))

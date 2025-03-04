@@ -1,5 +1,9 @@
 ### 3/4/2025
 
+- Caught a bug where machines are only listening for messages from one neighbor! After fixing, we now see experiments where the slower machine becomes backlogged in its network queue, being too slow to process messages from the faster machine. This is a good sign that the system is working as intended.
+
+- Added experiment where add more weight to broadcasts, to see how important broadcasts are to maintaining clock sync. Initial results seem to be that there isn't much difference; perhaps since messages are being sent around by all the machines, there isn't a long period where a machine is not receiving messages.
+
 - Thought about timezones a bit; what is the standardized way to handle them? Decided to do everything in UTC time, and convert to local time when displaying to the user. This way, we don't have to worry about time zones when doing computations on timestamps.
 
 - Changed the logical clock to increment by the number of seconds passed, not number of events. This allows us to compare the logical clock against the system clock, and get a more meaningful definition of clock drift.

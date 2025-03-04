@@ -3,7 +3,7 @@ import socket
 import threading
 import time
 import random
-from datetime import datetime
+from datetime import datetime, UTC
 from model.machine import Machine
 
 def create_experiment_directory():
@@ -20,7 +20,7 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
     Parameters:
     - duration: Duration of the experiment in seconds
     - clock_variation: "high" (1-6) or "low" (4-6)
-    - internal_event_prob: "high" (1-10) or "low" (1-5)
+    - internal_event_prob: "high" (1-10) or "low" (1-5) or "weighted" (higher chance of broadcast)
     """
     # Create experiment directory
     exp_dir = create_experiment_directory()
@@ -46,11 +46,11 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
                 connections[i].append(client)
 
     # Accept the incoming connections
-    accepted_connections = []
+    accepted_connections = [[] for _ in range(3)]
     for i in range(3):
         for _ in range(2):  # Each machine connects to 2 others
             conn, addr = sockets[i].accept()
-            accepted_connections.append(conn)
+            accepted_connections[i].append(conn)
 
     # Determine clock speeds
     if clock_variation == "high":
@@ -60,18 +60,20 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
 
     # Adjust internal event probability
     if internal_event_prob == "low":
-        # Modify the Machine class to use a different random range
-        # This is a bit of a hack, but it works for our purposes
-        Machine.INTERNAL_EVENT_RANGE = (1, 5)
+        internal_event_probs = ([1], [2], [3])
+    elif internal_event_prob == "high":
+        internal_event_probs = ([1, 2], [3, 4], [5, 6])
+    elif internal_event_prob == "weighted":
+        internal_event_probs = ([1], [2], [3, 4, 5])
     else:
-        Machine.INTERNAL_EVENT_RANGE = (1, 10)
+        raise ValueError("Invalid internal event probability")
 
     # Create and start machines
     machines = []
     for i in range(3):
         log_file = f"{exp_dir}/machine_{i}.log"
-        machine = Machine(f"Machine_{i}", accepted_connections[i*2], connections[i], log_file, speeds[i])
-        machine.start_network_thread()
+        machine = Machine(f"Machine_{i}", accepted_connections[i], connections[i], log_file, speeds[i], internal_event_probs)
+        machine.start_network_threads()
         machines.append(machine)
 
     # Create a stop event to signal threads to terminate
@@ -79,8 +81,9 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
 
     # Start machine threads
     machine_threads = []
+    start_time = datetime.now(UTC).timestamp()
     for machine in machines:
-        thread = threading.Thread(target=machine.run, args=(stop_event,))
+        thread = threading.Thread(target=machine.run, args=(stop_event, start_time))
         thread.daemon = True
         thread.start()
         machine_threads.append(thread)
@@ -105,12 +108,13 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
             except OSError:
                 pass  # Socket might already be closed
 
-    for conn in accepted_connections:
-        try:
-            conn.shutdown(socket.SHUT_RDWR)
-            conn.close()
-        except OSError:
-            pass  # Socket might already be closed
+    for conn_list in accepted_connections:
+        for conn in conn_list:
+            try:
+                conn.shutdown(socket.SHUT_RDWR)
+                conn.close()
+            except OSError:
+                pass  # Socket might already be closed
 
     for server in sockets:
         try:
@@ -147,6 +151,12 @@ def main():
 
     print("Running experiment 5: High clock variation, high internal event probability (longer duration)")
     run_experiment(duration=120, clock_variation="high", internal_event_prob="high")
+
+    print("Running experiment 6: High clock variation, weighted internal event probability")
+    run_experiment(duration=60, clock_variation="high", internal_event_prob="weighted")
+
+    print("Running experiment 7: Low clock variation, weighted internal event probability")
+    run_experiment(duration=60, clock_variation="low", internal_event_prob="weighted")
 
 if __name__ == "__main__":
     main()
