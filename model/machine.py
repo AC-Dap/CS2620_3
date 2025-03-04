@@ -7,6 +7,9 @@ from queue import Queue
 from model.message import Message
 
 class Machine:
+    # Class variable for internal event probability range
+    INTERNAL_EVENT_RANGE = (1, 10)
+    
     def __init__(self, id, socket, neighbors, log_file, speed):
         """
         Initialize a virtual machine.
@@ -22,8 +25,8 @@ class Machine:
         self.log_file = log_file
         self.speed = speed
 
-        # Initialize the internal clock. This is the number of milliseconds since the epoch.
-        self.internal_clock = datetime.now().replace(tzinfo=UTC).timestamp()
+        # Initialize the logical clock to 0
+        self.internal_clock = 0
 
         # Our machine will read from this queue
         # We have a separate thread (not rate limited) that reads from the socket and writes to this queue
@@ -33,14 +36,13 @@ class Machine:
     def log_event(self, event, extra_text=""):
         """
         Log an event to this machine's log file.
-        Prints the format [event]: [system time] [internal clock] [extra_text(optional)]
+        Prints the format [event]: [system time] [logical clock] [extra_text(optional)]
         :param event: The event to log.
         :param extra_text: Optional extra text to log.
         """
         with open(self.log_file, 'a') as f:
             system_time = datetime.now().time()
-            internal_time = datetime.fromtimestamp(self.internal_clock, UTC).time()
-            f.write(f'[{event}]: {system_time} {internal_time} {extra_text}\n')
+            f.write(f'[{event}]: {system_time} {self.internal_clock} {extra_text}\n')
 
     def start_network_thread(self):
         """
@@ -59,7 +61,11 @@ class Machine:
         while True:
             # Receive a message from the network.
             try:
-                buffer += self.socket.recv(1024).decode('utf-8')
+                data = self.socket.recv(1024)
+                if not data:  # Connection closed by the other side
+                    print(f"[{self.id}] Connection closed by peer")
+                    break
+                buffer += data.decode('utf-8')
             except Exception as e:
                 print(f"[{self.id}] Error received from socket: {e}")
                 break
@@ -70,49 +76,66 @@ class Machine:
                 message_json = buffer[:next_newline]
                 buffer = buffer[next_newline + 1:]
 
-                # Parse the message
-                message = Message.from_json(json.loads(message_json))
+                try:
+                    # Parse the message
+                    message = Message.from_json(json.loads(message_json))
 
-                # Add the message to the network queue.
-                self.network_queue.put(message)
+                    # Add the message to the network queue.
+                    self.network_queue.put(message)
+                except json.JSONDecodeError:
+                    print(f"[{self.id}] Invalid JSON received: {message_json}")
+                except Exception as e:
+                    print(f"[{self.id}] Error processing message: {e}")
 
                 # Find next message
                 next_newline = buffer.find('\n')
 
-    def run(self):
+    def run(self, stop_event=None):
         """
         Run the machine.
+        
+        :param stop_event: Threading event to signal when to stop the machine
         """
-        while True:
+        while not (stop_event and stop_event.is_set()):
             # See if there is a pending message
             if self.network_queue.empty():
-                rng = random.randint(1, 10)
+                rng = random.randint(*Machine.INTERNAL_EVENT_RANGE)
 
+                # Increment logical clock for this event
+                self.internal_clock += 1
+                
                 # Create message to be sent
                 message = Message(self.id, self.internal_clock)
                 message_json = json.dumps(message.to_json()).encode('utf-8') + b'\n'
-                if rng == 1:
-                    # Send to neighbor 1
-                    self.neighbors[0].send(message_json)
-                    self.log_event('send', 'A')
-                elif rng == 2:
-                    # Send to neighbor 2
-                    self.neighbors[1].send(message_json)
-                    self.log_event('send', 'B')
-                elif rng == 3:
-                    # Send to both neighbors
-                    self.neighbors[0].send(message_json)
-                    self.neighbors[1].send(message_json)
-                    self.log_event('send', 'AB')
-                else:
-                    self.log_event('idle')
+                
+                # Only send if we're still running
+                if not (stop_event and stop_event.is_set()):
+                    try:
+                        if rng == 1:
+                            # Send to neighbor 1
+                            self.neighbors[0].send(message_json)
+                            self.log_event('send', 'A')
+                        elif rng == 2:
+                            # Send to neighbor 2
+                            self.neighbors[1].send(message_json)
+                            self.log_event('send', 'B')
+                        elif rng == 3:
+                            # Send to both neighbors
+                            self.neighbors[0].send(message_json)
+                            self.neighbors[1].send(message_json)
+                            self.log_event('send', 'AB')
+                        else:
+                            self.log_event('idle')
+                    except OSError:
+                        # Socket might be closed, exit gracefully
+                        break
             else:
                 message: Message = self.network_queue.get()
 
-                # Update internal clock
-                self.internal_clock = message.datetime
+                # Update logical clock according to Lamport's rule:
+                # Take max of local clock and received clock, then increment
+                self.internal_clock = max(self.internal_clock, message.datetime) + 1
 
                 self.log_event('recv', f"Queued Messages: {self.network_queue.qsize()}")
 
             time.sleep(1 / self.speed)
-            self.internal_clock += 1 / self.speed
