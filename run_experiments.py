@@ -16,7 +16,7 @@ def create_experiment_directory():
 def run_experiment(duration=60, clock_variation="high", internal_event_prob="high"):
     """
     Run a distributed system experiment.
-    
+
     Parameters:
     - duration: Duration of the experiment in seconds
     - clock_variation: "high" (1-6) or "low" (4-6)
@@ -24,7 +24,7 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
     """
     # Create experiment directory
     exp_dir = create_experiment_directory()
-    
+
     # Create sockets for the machines
     sockets = []
     for i in range(3):
@@ -33,10 +33,10 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
         server.bind(('localhost', 10000 + i))
         server.listen(5)
         sockets.append(server)
-    
+
     # Accept connections
     connections = [[] for _ in range(3)]
-    
+
     # Connect machines to each other
     for i in range(3):
         for j in range(3):
@@ -44,20 +44,20 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
                 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 client.connect(('localhost', 10000 + j))
                 connections[i].append(client)
-    
+
     # Accept the incoming connections
     accepted_connections = []
     for i in range(3):
         for _ in range(2):  # Each machine connects to 2 others
             conn, addr = sockets[i].accept()
             accepted_connections.append(conn)
-    
+
     # Determine clock speeds
     if clock_variation == "high":
         speeds = [random.randint(1, 6) for _ in range(3)]
     else:
         speeds = [random.randint(4, 6) for _ in range(3)]
-    
+
     # Adjust internal event probability
     if internal_event_prob == "low":
         # Modify the Machine class to use a different random range
@@ -65,7 +65,7 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
         Machine.INTERNAL_EVENT_RANGE = (1, 5)
     else:
         Machine.INTERNAL_EVENT_RANGE = (1, 10)
-    
+
     # Create and start machines
     machines = []
     for i in range(3):
@@ -73,10 +73,10 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
         machine = Machine(f"Machine_{i}", accepted_connections[i*2], connections[i], log_file, speeds[i])
         machine.start_network_thread()
         machines.append(machine)
-    
+
     # Create a stop event to signal threads to terminate
     stop_event = threading.Event()
-    
+
     # Start machine threads
     machine_threads = []
     for machine in machines:
@@ -84,18 +84,18 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
         thread.daemon = True
         thread.start()
         machine_threads.append(thread)
-    
+
     # Run for specified duration
     print(f"Experiment running for {duration} seconds...")
     time.sleep(duration)
-    
+
     # Signal threads to stop
     stop_event.set()
-    
+
     # Wait for threads to terminate (with timeout)
     for thread in machine_threads:
         thread.join(timeout=1.0)
-    
+
     # Clean up - first shutdown the sockets to signal network threads to exit
     for conn_list in connections:
         for conn in conn_list:
@@ -104,30 +104,30 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
                 conn.close()
             except OSError:
                 pass  # Socket might already be closed
-    
+
     for conn in accepted_connections:
         try:
             conn.shutdown(socket.SHUT_RDWR)
             conn.close()
         except OSError:
             pass  # Socket might already be closed
-    
+
     for server in sockets:
         try:
             server.close()
         except OSError:
             pass  # Socket might already be closed
-    
+
     # Give network threads a moment to exit
     time.sleep(0.5)
-    
+
     # Save experiment parameters
     with open(f"{exp_dir}/parameters.txt", "w") as f:
         f.write(f"Duration: {duration} seconds\n")
         f.write(f"Clock variation: {clock_variation}\n")
         f.write(f"Internal event probability: {internal_event_prob}\n")
         f.write(f"Machine speeds: {speeds}\n")
-    
+
     print(f"Experiment completed. Results saved in {exp_dir}")
     return exp_dir
 
@@ -135,18 +135,18 @@ def main():
     # Run experiments with different parameters
     print("Running experiment 1: High clock variation, high internal event probability")
     run_experiment(duration=60, clock_variation="high", internal_event_prob="high")
-    
+
     print("Running experiment 2: Low clock variation, high internal event probability")
     run_experiment(duration=60, clock_variation="low", internal_event_prob="high")
-    
+
     print("Running experiment 3: High clock variation, low internal event probability")
     run_experiment(duration=60, clock_variation="high", internal_event_prob="low")
-    
+
     print("Running experiment 4: Low clock variation, low internal event probability")
     run_experiment(duration=60, clock_variation="low", internal_event_prob="low")
-    
+
     print("Running experiment 5: High clock variation, high internal event probability (longer duration)")
     run_experiment(duration=120, clock_variation="high", internal_event_prob="high")
 
 if __name__ == "__main__":
-    main() 
+    main()

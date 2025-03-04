@@ -9,7 +9,7 @@ from model.message import Message
 class Machine:
     # Class variable for internal event probability range
     INTERNAL_EVENT_RANGE = (1, 10)
-    
+
     def __init__(self, id, socket, neighbors, log_file, speed):
         """
         Initialize a virtual machine.
@@ -26,7 +26,7 @@ class Machine:
         self.speed = speed
 
         # Initialize the logical clock to 0
-        self.internal_clock = 0
+        self.internal_clock = datetime.now(UTC).timestamp()
 
         # Our machine will read from this queue
         # We have a separate thread (not rate limited) that reads from the socket and writes to this queue
@@ -41,8 +41,9 @@ class Machine:
         :param extra_text: Optional extra text to log.
         """
         with open(self.log_file, 'a') as f:
-            system_time = datetime.now().time()
-            f.write(f'[{event}]: {system_time} {self.internal_clock} {extra_text}\n')
+            system_time = datetime.now(UTC).time()
+            internal_time = datetime.fromtimestamp(self.internal_clock, UTC).time()
+            f.write(f'[{event}]: {system_time} {internal_time} {extra_text}\n')
 
     def start_network_thread(self):
         """
@@ -93,7 +94,7 @@ class Machine:
     def run(self, stop_event=None):
         """
         Run the machine.
-        
+
         :param stop_event: Threading event to signal when to stop the machine
         """
         while not (stop_event and stop_event.is_set()):
@@ -101,13 +102,10 @@ class Machine:
             if self.network_queue.empty():
                 rng = random.randint(*Machine.INTERNAL_EVENT_RANGE)
 
-                # Increment logical clock for this event
-                self.internal_clock += 1
-                
                 # Create message to be sent
                 message = Message(self.id, self.internal_clock)
                 message_json = json.dumps(message.to_json()).encode('utf-8') + b'\n'
-                
+
                 # Only send if we're still running
                 if not (stop_event and stop_event.is_set()):
                     try:
@@ -134,8 +132,11 @@ class Machine:
 
                 # Update logical clock according to Lamport's rule:
                 # Take max of local clock and received clock, then increment
-                self.internal_clock = max(self.internal_clock, message.datetime) + 1
+                self.internal_clock = max(self.internal_clock, message.datetime)
 
                 self.log_event('recv', f"Queued Messages: {self.network_queue.qsize()}")
 
             time.sleep(1 / self.speed)
+
+            # Increment logical clock after sleeping
+            self.internal_clock += 1 / self.speed
