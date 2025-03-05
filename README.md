@@ -11,9 +11,10 @@ This will execute seven different experiments with varying parameters and save t
 
 ### Analyzing Results
 To analyze and visualize the experiment results:
-```python analyze_results.py```
+```python visualize.py```
 
 ### Project Structure
+```
 ├── model/
 │   ├── __init__.py
 │   ├── machine.py        # Virtual machine implementation
@@ -23,3 +24,4 @@ To analyze and visualize the experiment results:
 ├── visualize.py          # Script to analyze and visualize results
 ├── notebook.md           # Engineering notebook
 └── README.md             # Project documentation
+```
