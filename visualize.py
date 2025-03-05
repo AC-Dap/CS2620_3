@@ -15,14 +15,12 @@ def parse_log_file(log_path):
     with open(log_path, 'r') as f:
         for line in f:
             # Parse the log line format: [event]: system_time logical_clock extra_text
-            match = re.match(r'\[(.+)\]: ([0-9:.]+) ([0-9:.]+) (.*)', line)
+            match = re.match(r'\[(.+)\]: ([0-9:.]+) (\d+) (.*)', line)
             if match:
                 event_type, system_time, logical_clock, extra_text = match.groups()
 
                 # Convert system_time to datetime object
                 system_time = datetime.strptime(system_time, '%H:%M:%S.%f')
-
-                logical_time = datetime.strptime(logical_clock, '%H:%M:%S.%f')
 
                 # Parse extra text for message destinations (A, B, AB)
                 destinations = extra_text.strip()
@@ -30,7 +28,7 @@ def parse_log_file(log_path):
                 events.append({
                     'event_type': event_type,
                     'system_time': system_time,
-                    'logical_clock': logical_time,
+                    'logical_clock': int(logical_clock),
                     'destinations': destinations,
                     'queue_size': int(destinations.split(': ')[1]) if 'Queued Messages' in destinations else 0
                 })
@@ -144,23 +142,23 @@ def visualize_experiment(experiment_data, output_dir=None):
     ax3.legend()
     ax3.grid(True)
 
-    # 4. Clock Drift Analysis (middle right)
+    # 4. Clock Jump Analysis (middle right)
     ax4 = fig.add_subplot(gs[1, 1])
 
-    # Calculate clock drift (difference between logical clock and expected progression)
+    # Calculate clock jumps (difference between consecutive log entries)
     for machine_id in experiment_data['machine_id'].unique():
         machine_data = experiment_data[experiment_data['machine_id'] == machine_id].copy()
         machine_data = machine_data.sort_values('system_time')
 
         # Calculate drift
-        machine_data['clock_drift'] = (machine_data['logical_clock'] - machine_data['system_time']).dt.total_seconds()
+        machine_data['clock_jump'] = machine_data['logical_clock'].diff()
 
-        ax4.plot(machine_data['system_time'], machine_data['clock_drift'],
+        ax4.plot(machine_data['system_time'], machine_data['clock_jump'],
                 label=f'Machine {machine_id} (Speed: {machine_data["machine_speed"].iloc[0]})')
 
     ax4.set_xlabel('System Time')
-    ax4.set_ylabel('Clock Drift (seconds)')
-    ax4.set_title('Logical Clock Drift')
+    ax4.set_ylabel('Clock Jump Time')
+    ax4.set_title('Logical Clock Jumps')
     ax4.legend()
     ax4.grid(True)
 
@@ -218,11 +216,18 @@ def compare_experiments(experiment_dirs, output_dir="experiment_comparison"):
     fig = plt.figure(figsize=(20, 15))
     gs = GridSpec(2, 2, figure=fig)
 
+    # Generate x_labels for each figure
+    x_labels = []
+    for exp in combined_data['experiment'].unique():
+        exp_subset = combined_data[combined_data['experiment'] == exp]
+        clock_var = exp_subset['clock_variation'].iloc[0]
+        event_prob = exp_subset['internal_event_prob'].iloc[0]
+        x_labels.append(f"{exp_subset.groupby('machine_id')['machine_speed'].first().tolist()}\n{clock_var}/{event_prob}")
+
     # 1. Compare logical clock progression rates (top left)
     ax1 = fig.add_subplot(gs[0, 0])
 
     exp_data = []
-    labels = []
 
     for exp in combined_data['experiment'].unique():
         exp_subset = combined_data[combined_data['experiment'] == exp]
@@ -235,9 +240,8 @@ def compare_experiments(experiment_dirs, output_dir="experiment_comparison"):
         event_prob = exp_subset['internal_event_prob'].iloc[0]
 
         exp_data.append(max_clock)
-        labels.append(f"{exp}\n{clock_var}/{event_prob}")
 
-    ax1.bar(labels, exp_data)
+    ax1.bar(x_labels, exp_data)
     ax1.set_xlabel('Experiment')
     ax1.set_ylabel('Average Max Logical Clock')
     ax1.set_title('Comparison of Logical Clock Progression Rates')
@@ -252,8 +256,8 @@ def compare_experiments(experiment_dirs, output_dir="experiment_comparison"):
     ax2.set_xlabel('Experiment')
     ax2.set_ylabel('Event Count')
     ax2.set_title('Comparison of Event Type Distributions')
+    ax2.set_xticklabels(x_labels, rotation=45)
     ax2.legend(title='Event Type')
-    ax2.tick_params(axis='x', rotation=45)
 
     # 3. Compare queue sizes (bottom left)
     ax3 = fig.add_subplot(gs[1, 0])
@@ -270,38 +274,41 @@ def compare_experiments(experiment_dirs, output_dir="experiment_comparison"):
     ax3.set_ylabel('Queue Size')
     ax3.set_title('Comparison of Message Queue Sizes')
     ax3.set_xticks(x)
-    ax3.set_xticklabels(queue_stats.index, rotation=45)
+    ax3.set_xticklabels(x_labels, rotation=45)
     ax3.legend()
 
     # 4. Compare clock drift (bottom right)
     ax4 = fig.add_subplot(gs[1, 1])
+    experiments = combined_data['experiment'].unique()
 
-    for exp in combined_data['experiment'].unique():
+    x_pos = np.arange(len(experiments))
+    for i, exp in enumerate(experiments):
         exp_subset = combined_data[combined_data['experiment'] == exp]
 
-        # Calculate average clock drift for each experiment
+        # Calculate average clock jump for each experiment
         drift_data = []
         for machine_id in exp_subset['machine_id'].unique():
             machine_data = exp_subset[exp_subset['machine_id'] == machine_id].copy()
             machine_data = machine_data.sort_values('system_time')
 
             # Calculate drift
-            machine_data['clock_drift'] = (machine_data['logical_clock'] - machine_data['system_time']).dt.total_seconds()
+            machine_data['clock_jump'] = machine_data['logical_clock'].diff()
 
-            # Get final drift
-            final_drift = machine_data['clock_drift'].iloc[-1]
+            # Get average jump
+            final_drift = np.mean(machine_data['clock_jump'])
             drift_data.append(final_drift)
 
         # Get experiment parameters for the label
-        clock_var = exp_subset['clock_variation'].iloc[0]
-        event_prob = exp_subset['internal_event_prob'].iloc[0]
-
-        ax4.bar(f"{exp}\n{clock_var}/{event_prob}", np.mean(drift_data))
+        ax4.bar(x_pos[i] - 0.25, drift_data[0], 0.25, label="Machine 0" if i == 0 else "")
+        ax4.bar(x_pos[i], drift_data[1], 0.25, label="Machine 1" if i == 0 else "")
+        ax4.bar(x_pos[i] + 0.25, drift_data[2], 0.25, label="Machine 2" if i == 0 else "")
 
     ax4.set_xlabel('Experiment')
     ax4.set_ylabel('Average Final Clock Drift (seconds)')
     ax4.set_title('Comparison of Final Clock Drift')
-    ax4.tick_params(axis='x', rotation=45)
+    ax4.set_xticks(x_pos)
+    ax4.set_xticklabels(x_labels, rotation=45)
+    ax4.legend()
 
     fig.suptitle("Experiment Comparison", fontsize=16)
     plt.tight_layout(rect=[0, 0, 1, 0.95])  # Adjust for the suptitle

@@ -1,0 +1,236 @@
+[idle]: 21:00:10.718188 0 
+[recv]: 21:00:10.969099 1 Queued Messages: 1
+[recv]: 21:00:11.221136 2 Queued Messages: 0
+[recv]: 21:00:11.472455 3 Queued Messages: 0
+[recv]: 21:00:11.723662 4 Queued Messages: 0
+[idle]: 21:00:11.974973 5 
+[recv]: 21:00:12.226242 7 Queued Messages: 0
+[recv]: 21:00:12.477457 8 Queued Messages: 0
+[idle]: 21:00:12.729261 9 
+[recv]: 21:00:12.979777 11 Queued Messages: 0
+[idle]: 21:00:13.231422 12 
+[recv]: 21:00:13.482668 13 Queued Messages: 0
+[recv]: 21:00:13.734464 14 Queued Messages: 0
+[recv]: 21:00:13.985853 16 Queued Messages: 0
+[recv]: 21:00:14.237324 17 Queued Messages: 0
+[recv]: 21:00:14.488830 18 Queued Messages: 0
+[idle]: 21:00:14.740507 19 
+[recv]: 21:00:14.992096 20 Queued Messages: 1
+[recv]: 21:00:15.245056 21 Queued Messages: 1
+[recv]: 21:00:15.496193 22 Queued Messages: 0
+[idle]: 21:00:15.750673 23 
+[recv]: 21:00:16.002470 26 Queued Messages: 0
+[idle]: 21:00:16.257310 27 
+[send]: 21:00:16.510461 28 B
+[idle]: 21:00:16.761785 29 
+[recv]: 21:00:17.014970 30 Queued Messages: 1
+[recv]: 21:00:17.266526 31 Queued Messages: 1
+[recv]: 21:00:17.517778 32 Queued Messages: 0
+[recv]: 21:00:17.769067 34 Queued Messages: 0
+[recv]: 21:00:18.021149 36 Queued Messages: 0
+[recv]: 21:00:18.272158 37 Queued Messages: 0
+[send]: 21:00:18.523538 38 A
+[send]: 21:00:18.775202 39 A
+[recv]: 21:00:19.027335 41 Queued Messages: 0
+[idle]: 21:00:19.278140 42 
+[send]: 21:00:19.529679 43 AB
+[idle]: 21:00:19.781662 44 
+[recv]: 21:00:20.033860 46 Queued Messages: 0
+[send]: 21:00:20.285992 47 AB
+[send]: 21:00:20.538610 48 AB
+[send]: 21:00:20.791164 49 B
+[recv]: 21:00:21.042123 51 Queued Messages: 0
+[send]: 21:00:21.293361 52 AB
+[send]: 21:00:21.544679 53 A
+[recv]: 21:00:21.795894 54 Queued Messages: 0
+[recv]: 21:00:22.047167 56 Queued Messages: 0
+[send]: 21:00:22.298030 57 AB
+[idle]: 21:00:22.549418 58 
+[recv]: 21:00:22.801227 59 Queued Messages: 0
+[recv]: 21:00:23.052215 60 Queued Messages: 0
+[idle]: 21:00:23.303492 61 
+[recv]: 21:00:23.555017 63 Queued Messages: 1
+[recv]: 21:00:23.806964 64 Queued Messages: 0
+[idle]: 21:00:24.057563 65 
+[recv]: 21:00:24.308880 67 Queued Messages: 1
+[recv]: 21:00:24.559999 68 Queued Messages: 0
+[recv]: 21:00:24.811494 69 Queued Messages: 0
+[recv]: 21:00:25.063069 70 Queued Messages: 1
+[recv]: 21:00:25.314420 71 Queued Messages: 1
+[recv]: 21:00:25.565762 72 Queued Messages: 0
+[recv]: 21:00:25.816987 74 Queued Messages: 0
+[recv]: 21:00:26.068349 75 Queued Messages: 0
+[idle]: 21:00:26.319325 76 
+[recv]: 21:00:26.571299 78 Queued Messages: 0
+[recv]: 21:00:26.822859 79 Queued Messages: 1
+[recv]: 21:00:27.074392 80 Queued Messages: 1
+[recv]: 21:00:27.325840 81 Queued Messages: 1
+[recv]: 21:00:27.576849 82 Queued Messages: 0
+[send]: 21:00:27.828061 83 AB
+[recv]: 21:00:28.079479 86 Queued Messages: 0
+[idle]: 21:00:28.330577 87 
+[recv]: 21:00:28.582135 88 Queued Messages: 1
+[recv]: 21:00:28.833183 89 Queued Messages: 0
+[recv]: 21:00:29.085391 91 Queued Messages: 0
+[send]: 21:00:29.337024 92 A
+[send]: 21:00:29.590099 93 AB
+[send]: 21:00:29.842953 94 AB
+[idle]: 21:00:30.095700 95 
+[idle]: 21:00:30.347217 96 
+[recv]: 21:00:30.598250 98 Queued Messages: 0
+[recv]: 21:00:30.850549 99 Queued Messages: 0
+[recv]: 21:00:31.102502 101 Queued Messages: 0
+[send]: 21:00:31.353133 102 B
+[send]: 21:00:31.605915 103 AB
+[idle]: 21:00:31.857535 104 
+[recv]: 21:00:32.108462 106 Queued Messages: 1
+[recv]: 21:00:32.359596 107 Queued Messages: 0
+[recv]: 21:00:32.610987 108 Queued Messages: 0
+[send]: 21:00:32.862266 109 AB
+[idle]: 21:00:33.113880 110 
+[recv]: 21:00:33.365524 111 Queued Messages: 1
+[recv]: 21:00:33.616560 112 Queued Messages: 0
+[send]: 21:00:33.868151 113 A
+[idle]: 21:00:34.119520 114 
+[idle]: 21:00:34.371402 115 
+[recv]: 21:00:34.623850 118 Queued Messages: 0
+[idle]: 21:00:34.874548 119 
+[send]: 21:00:35.126909 120 AB
+[idle]: 21:00:35.377961 121 
+[recv]: 21:00:35.629770 123 Queued Messages: 0
+[idle]: 21:00:35.881914 124 
+[send]: 21:00:36.134775 125 A
+[recv]: 21:00:36.386909 127 Queued Messages: 0
+[recv]: 21:00:36.638969 128 Queued Messages: 0
+[recv]: 21:00:36.890817 129 Queued Messages: 0
+[idle]: 21:00:37.143151 130 
+[recv]: 21:00:37.395506 131 Queued Messages: 1
+[recv]: 21:00:37.646810 132 Queued Messages: 0
+[recv]: 21:00:37.898806 134 Queued Messages: 0
+[idle]: 21:00:38.150582 135 
+[recv]: 21:00:38.402992 136 Queued Messages: 1
+[recv]: 21:00:38.655254 137 Queued Messages: 0
+[recv]: 21:00:38.907526 139 Queued Messages: 1
+[recv]: 21:00:39.159250 140 Queued Messages: 0
+[recv]: 21:00:39.411719 141 Queued Messages: 1
+[recv]: 21:00:39.664338 142 Queued Messages: 1
+[recv]: 21:00:39.915680 143 Queued Messages: 1
+[recv]: 21:00:40.167753 144 Queued Messages: 1
+[recv]: 21:00:40.421137 145 Queued Messages: 0
+[idle]: 21:00:40.672171 146 
+[send]: 21:00:40.924487 147 AB
+[send]: 21:00:41.177061 148 AB
+[recv]: 21:00:41.429786 152 Queued Messages: 0
+[recv]: 21:00:41.683018 153 Queued Messages: 0
+[recv]: 21:00:41.934657 154 Queued Messages: 0
+[idle]: 21:00:42.186469 155 
+[idle]: 21:00:42.438685 156 
+[recv]: 21:00:42.689788 158 Queued Messages: 1
+[recv]: 21:00:42.940897 159 Queued Messages: 0
+[idle]: 21:00:43.192139 160 
+[recv]: 21:00:43.443647 161 Queued Messages: 0
+[recv]: 21:00:43.694390 163 Queued Messages: 0
+[send]: 21:00:43.945069 164 AB
+[idle]: 21:00:44.196367 165 
+[idle]: 21:00:44.447727 166 
+[recv]: 21:00:44.699452 168 Queued Messages: 1
+[recv]: 21:00:44.951122 169 Queued Messages: 0
+[recv]: 21:00:45.205784 170 Queued Messages: 1
+[recv]: 21:00:45.459517 171 Queued Messages: 1
+[recv]: 21:00:45.710791 172 Queued Messages: 2
+[recv]: 21:00:45.962599 173 Queued Messages: 2
+[recv]: 21:00:46.213674 174 Queued Messages: 2
+[recv]: 21:00:46.465085 175 Queued Messages: 3
+[recv]: 21:00:46.716526 176 Queued Messages: 3
+[recv]: 21:00:46.968295 177 Queued Messages: 2
+[recv]: 21:00:47.219560 178 Queued Messages: 2
+[recv]: 21:00:47.471237 179 Queued Messages: 2
+[recv]: 21:00:47.722140 180 Queued Messages: 2
+[recv]: 21:00:47.973327 181 Queued Messages: 1
+[recv]: 21:00:48.224708 183 Queued Messages: 0
+[recv]: 21:00:48.476680 186 Queued Messages: 1
+[recv]: 21:00:48.727694 187 Queued Messages: 0
+[idle]: 21:00:48.979059 188 
+[send]: 21:00:49.230226 189 AB
+[idle]: 21:00:49.481745 190 
+[recv]: 21:00:49.733442 192 Queued Messages: 1
+[recv]: 21:00:49.985321 193 Queued Messages: 1
+[recv]: 21:00:50.236873 194 Queued Messages: 1
+[recv]: 21:00:50.488285 195 Queued Messages: 0
+[recv]: 21:00:50.740593 198 Queued Messages: 0
+[send]: 21:00:50.991682 199 A
+[idle]: 21:00:51.244299 200 
+[recv]: 21:00:51.496664 201 Queued Messages: 0
+[recv]: 21:00:51.748483 203 Queued Messages: 0
+[idle]: 21:00:52.000731 204 
+[idle]: 21:00:52.251931 205 
+[recv]: 21:00:52.503272 206 Queued Messages: 0
+[recv]: 21:00:52.754726 207 Queued Messages: 0
+[send]: 21:00:53.005938 208 A
+[send]: 21:00:53.257053 209 AB
+[idle]: 21:00:53.508632 210 
+[recv]: 21:00:53.759753 213 Queued Messages: 0
+[recv]: 21:00:54.010601 214 Queued Messages: 0
+[idle]: 21:00:54.261880 215 
+[recv]: 21:00:54.513508 216 Queued Messages: 0
+[send]: 21:00:54.765277 217 AB
+[send]: 21:00:55.017100 218 A
+[idle]: 21:00:55.268537 219 
+[recv]: 21:00:55.520461 221 Queued Messages: 1
+[recv]: 21:00:55.771886 222 Queued Messages: 2
+[recv]: 21:00:56.023025 223 Queued Messages: 1
+[recv]: 21:00:56.274533 224 Queued Messages: 2
+[recv]: 21:00:56.525846 225 Queued Messages: 1
+[recv]: 21:00:56.777700 226 Queued Messages: 2
+[recv]: 21:00:57.029051 227 Queued Messages: 2
+[recv]: 21:00:57.280244 228 Queued Messages: 1
+[recv]: 21:00:57.531554 229 Queued Messages: 1
+[recv]: 21:00:57.784163 231 Queued Messages: 1
+[recv]: 21:00:58.035496 232 Queued Messages: 0
+[recv]: 21:00:58.286830 235 Queued Messages: 1
+[recv]: 21:00:58.538125 236 Queued Messages: 0
+[recv]: 21:00:58.789505 237 Queued Messages: 0
+[idle]: 21:00:59.041648 238 
+[recv]: 21:00:59.293213 240 Queued Messages: 0
+[recv]: 21:00:59.544830 241 Queued Messages: 1
+[recv]: 21:00:59.795964 242 Queued Messages: 1
+[recv]: 21:01:00.047431 243 Queued Messages: 1
+[recv]: 21:01:00.299237 244 Queued Messages: 1
+[recv]: 21:01:00.550428 245 Queued Messages: 0
+[recv]: 21:01:00.802508 248 Queued Messages: 0
+[idle]: 21:01:01.055625 249 
+[recv]: 21:01:01.307033 250 Queued Messages: 1
+[recv]: 21:01:01.557869 251 Queued Messages: 0
+[recv]: 21:01:01.809255 252 Queued Messages: 0
+[idle]: 21:01:02.064483 253 
+[recv]: 21:01:02.316342 255 Queued Messages: 1
+[recv]: 21:01:02.567526 256 Queued Messages: 0
+[recv]: 21:01:02.818788 257 Queued Messages: 1
+[recv]: 21:01:03.070315 258 Queued Messages: 2
+[recv]: 21:01:03.321352 259 Queued Messages: 1
+[recv]: 21:01:03.572811 260 Queued Messages: 1
+[recv]: 21:01:03.823962 261 Queued Messages: 0
+[recv]: 21:01:04.074912 264 Queued Messages: 0
+[send]: 21:01:04.326002 265 AB
+[send]: 21:01:04.577059 266 AB
+[send]: 21:01:04.828941 267 AB
+[send]: 21:01:05.081442 268 AB
+[idle]: 21:01:05.333010 269 
+[send]: 21:01:05.584043 270 AB
+[idle]: 21:01:05.835635 271 
+[recv]: 21:01:06.086759 273 Queued Messages: 1
+[recv]: 21:01:06.339284 274 Queued Messages: 0
+[recv]: 21:01:06.590648 276 Queued Messages: 0
+[recv]: 21:01:06.842446 277 Queued Messages: 0
+[send]: 21:01:07.093451 278 AB
+[send]: 21:01:07.344746 279 A
+[recv]: 21:01:07.596483 281 Queued Messages: 0
+[send]: 21:01:07.853897 282 B
+[send]: 21:01:08.107431 283 A
+[idle]: 21:01:08.358394 284 
+[recv]: 21:01:08.613803 286 Queued Messages: 0
+[recv]: 21:01:08.865335 287 Queued Messages: 0
+[recv]: 21:01:09.116946 288 Queued Messages: 0
+[send]: 21:01:09.368227 289 AB
+[send]: 21:01:09.620492 290 AB
+[idle]: 21:01:09.872676 291 

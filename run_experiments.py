@@ -1,6 +1,6 @@
 import os
 import socket
-import threading
+import multiprocessing
 import time
 import random
 from datetime import datetime, UTC
@@ -13,6 +13,50 @@ def create_experiment_directory():
     os.makedirs(dir_name, exist_ok=True)
     return dir_name
 
+def start_machine(id, port, neighbor_ports, log_file, speed, internal_event_probs, stop_event):
+    """
+    Start a machine in the distributed system.
+
+    Parameters:
+    - port: Port number for the machine to listen on
+    - neighbor_ports: List of port numbers for the machine's neighbors
+    - log_file: File to log machine events to
+    - speed: Speed of the machine's internal clock
+    - internal_event_probs: List of probabilities for internal events
+    """
+    # Create a socket for the machine
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # Allow reuse of address
+    server.bind(('localhost', port))
+    server.listen(5)
+
+    # Sleep a bit to allow for neighbor sockets to be created
+    time.sleep(0.5)
+
+    # Connect to the neighbors
+    connections = []
+    for neighbor_port in neighbor_ports:
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.connect(('localhost', neighbor_port))
+        connections.append(client)
+
+    # Accept the incoming connection
+    accepted_connections = []
+    for _ in range(len(neighbor_ports)):
+        conn, addr = server.accept()
+        accepted_connections.append(conn)
+
+    # Create and start the machine
+    machine = Machine(f"Machine_{id}", accepted_connections, connections, log_file, speed, internal_event_probs)
+    machine.start_network_threads()
+    machine.run(stop_event)
+
+    # Clean up
+    for conn in connections:
+        conn.shutdown(socket.SHUT_RDWR)
+        conn.close()
+    server.close()
+
 def run_experiment(duration=60, clock_variation="high", internal_event_prob="high"):
     """
     Run a distributed system experiment.
@@ -24,33 +68,6 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
     """
     # Create experiment directory
     exp_dir = create_experiment_directory()
-
-    # Create sockets for the machines
-    sockets = []
-    for i in range(3):
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # Allow reuse of address
-        server.bind(('localhost', 10000 + i))
-        server.listen(5)
-        sockets.append(server)
-
-    # Accept connections
-    connections = [[] for _ in range(3)]
-
-    # Connect machines to each other
-    for i in range(3):
-        for j in range(3):
-            if i != j:
-                client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                client.connect(('localhost', 10000 + j))
-                connections[i].append(client)
-
-    # Accept the incoming connections
-    accepted_connections = [[] for _ in range(3)]
-    for i in range(3):
-        for _ in range(2):  # Each machine connects to 2 others
-            conn, addr = sockets[i].accept()
-            accepted_connections[i].append(conn)
 
     # Determine clock speeds
     if clock_variation == "high":
@@ -70,60 +87,26 @@ def run_experiment(duration=60, clock_variation="high", internal_event_prob="hig
 
     # Create and start machines
     machines = []
+    stop_event = multiprocessing.Event()
     for i in range(3):
         log_file = f"{exp_dir}/machine_{i}.log"
-        machine = Machine(f"Machine_{i}", accepted_connections[i], connections[i], log_file, speeds[i], internal_event_probs)
-        machine.start_network_threads()
+        machine = multiprocessing.Process(target=start_machine, args=(
+            i, 5000 + i, [5000 + j for j in range(3) if j != i],
+            log_file, speeds[i], internal_event_probs, stop_event)
+        )
+        machine.start()
         machines.append(machine)
-
-    # Create a stop event to signal threads to terminate
-    stop_event = threading.Event()
-
-    # Start machine threads
-    machine_threads = []
-    start_time = datetime.now(UTC).timestamp()
-    for machine in machines:
-        thread = threading.Thread(target=machine.run, args=(stop_event, start_time))
-        thread.daemon = True
-        thread.start()
-        machine_threads.append(thread)
 
     # Run for specified duration
     print(f"Experiment running for {duration} seconds...")
     time.sleep(duration)
 
-    # Signal threads to stop
+    # Signal machines to stop
     stop_event.set()
 
-    # Wait for threads to terminate (with timeout)
-    for thread in machine_threads:
-        thread.join(timeout=1.0)
-
-    # Clean up - first shutdown the sockets to signal network threads to exit
-    for conn_list in connections:
-        for conn in conn_list:
-            try:
-                conn.shutdown(socket.SHUT_RDWR)
-                conn.close()
-            except OSError:
-                pass  # Socket might already be closed
-
-    for conn_list in accepted_connections:
-        for conn in conn_list:
-            try:
-                conn.shutdown(socket.SHUT_RDWR)
-                conn.close()
-            except OSError:
-                pass  # Socket might already be closed
-
-    for server in sockets:
-        try:
-            server.close()
-        except OSError:
-            pass  # Socket might already be closed
-
-    # Give network threads a moment to exit
-    time.sleep(0.5)
+    # Wait for machines to terminate (with timeout)
+    for m in machines:
+        m.join(timeout=1.0)
 
     # Save experiment parameters
     with open(f"{exp_dir}/parameters.txt", "w") as f:

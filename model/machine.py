@@ -40,8 +40,7 @@ class Machine:
         """
         with open(self.log_file, 'a') as f:
             system_time = datetime.now(UTC).time()
-            internal_time = datetime.fromtimestamp(self.internal_clock, UTC).time()
-            f.write(f'[{event}]: {system_time} {internal_time} {extra_text}\n')
+            f.write(f'[{event}]: {system_time} {self.internal_clock} {extra_text}\n')
 
     def start_network_threads(self):
         """
@@ -91,14 +90,12 @@ class Machine:
                 # Find next message
                 next_newline = buffer.find('\n')
 
-    def run(self, stop_event=None, internal_clock_start=0):
+    def run(self, stop_event=None):
         """
         Run the machine.
 
         :param stop_event: Threading event to signal when to stop the machine
         """
-        # Set the internal clock to the start time
-        self.internal_clock = internal_clock_start
 
         while not (stop_event and stop_event.is_set()):
             # See if there is a pending message
@@ -142,7 +139,7 @@ class Machine:
 
                 self.log_event('recv', f"Queued Messages: {self.network_queue.qsize()}")
 
-            time.sleep(1 / self.speed)
+            # Increment logical clock for new event
+            self.internal_clock += 1
 
-            # Increment logical clock after sleeping
-            self.internal_clock += 1 / self.speed
+            time.sleep(1 / self.speed)

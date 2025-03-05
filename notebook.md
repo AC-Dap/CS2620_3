@@ -1,3 +1,7 @@
+### 3/5/2025
+
+- After discussing in class, revert the revert of logical clock increments. We realized although incrementing by seconds makes sense, it doesn't actually have the property of causal ordering.
+
 ### 3/4/2025
 
 - Caught a bug where machines are only listening for messages from one neighbor! After fixing, we now see experiments where the slower machine becomes backlogged in its network queue, being too slow to process messages from the faster machine. This is a good sign that the system is working as intended.

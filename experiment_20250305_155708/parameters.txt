@@ -1,0 +1,4 @@
+Duration: 120 seconds
+Clock variation: high
+Internal event probability: high
+Machine speeds: [1, 2, 6]
