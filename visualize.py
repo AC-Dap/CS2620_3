@@ -304,8 +304,8 @@ def compare_experiments(experiment_dirs, output_dir="experiment_comparison"):
         ax4.bar(x_pos[i] + 0.25, drift_data[2], 0.25, label="Machine 2" if i == 0 else "")
 
     ax4.set_xlabel('Experiment')
-    ax4.set_ylabel('Average Final Clock Drift (seconds)')
-    ax4.set_title('Comparison of Final Clock Drift')
+    ax4.set_ylabel('Clock Jump')
+    ax4.set_title('Comparison of Average Clock Jumps')
     ax4.set_xticks(x_pos)
     ax4.set_xticklabels(x_labels, rotation=45)
     ax4.legend()
